@@ -1,0 +1,1 @@
+delete from tracking where id = id;
