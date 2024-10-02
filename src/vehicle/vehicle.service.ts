@@ -6,6 +6,7 @@ import {
 import { CompanyRepository } from '../database/repository/company.repository';
 import { TrackingRepository } from '../database/repository/tracking.repository';
 import { VehicleRepository } from '../database/repository/vehicle.repository';
+import { Vehicle } from '../entities/vehicle.entity';
 
 @Injectable()
 export class VehicleService {
@@ -75,29 +76,19 @@ export class VehicleService {
     await this.vehicleRepository.update(vehicle.id, { active: false });
   }
 
-  async updateVehicleTracking(params: { vehicleId: number }) {
-    let vehicle = await this.vehicleRepository.findOne({
-      where: { id: params.vehicleId },
-    });
-    if (!vehicle) {
-      return;
-    }
+  updateVehicleTracking({ vehicle }: { vehicle: Vehicle }) {
     let nextTrackingId = (vehicle.lastFuelLevel + 1) % this.MAX_UPPER_TRACKING;
     if (!nextTrackingId) {
       nextTrackingId = 1;
     }
-    await this.vehicleRepository.update(vehicle.id, {
+    return {
       lastFuelLevel: this.getRandomFuelLevel({ max: 100, min: 10 }),
       lastTrackingId: nextTrackingId,
       nextProcessingDate: this.getRandomFutureDate({
-        maxSeconds: 30 * 60,
+        maxSeconds: 1 * 60,
         minSeconds: 10,
       }),
-    });
-    vehicle = await this.vehicleRepository.findOne({
-      where: { id: params.vehicleId },
-    });
-    return vehicle;
+    };
   }
 
   getRandomFuelLevel({ min, max }: { min: number; max: number }) {
