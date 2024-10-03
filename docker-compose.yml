@@ -1,0 +1,40 @@
+services:
+  tech_interview_database:
+    image: mysql:9.0.1
+    container_name: tech_interview_database
+    environment:
+      - MYSQL_PASSWORD=${DATABASE_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${DATABASE_PASSWORD}
+    volumes:
+      - .docker/mysql:/var/lib/mysql
+      - ./initdb:/docker-entrypoint-initdb.d
+    networks:
+      - database_network
+    ports:
+      - 3333:3306
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  tech_interview_api:
+    container_name: tech_interview_api
+    env_file:
+      - .env
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - ${PORT}:${PORT}
+    expose:
+      - ${PORT}
+    networks:
+      - database_network
+    depends_on:
+      tech_interview_database:
+        condition: service_healthy
+
+networks:
+  database_network:
+    driver: bridge

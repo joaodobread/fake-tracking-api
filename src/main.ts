@@ -1,3 +1,5 @@
+import 'dotenv/config';
+
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
@@ -21,7 +23,7 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, document);
 
   await app
-    .listen(3000)
+    .listen(process.env.PORT)
     .then(async () =>
       Logger.debug(`Application running at: ${await app.getUrl()}`),
     );
